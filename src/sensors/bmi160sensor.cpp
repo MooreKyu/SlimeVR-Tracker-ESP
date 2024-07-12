@@ -297,7 +297,7 @@ void BMI160Sensor::motionLoop() {
 
     {
         uint32_t now = micros();
-        constexpr uint32_t BMI160_TARGET_POLL_INTERVAL_MICROS = 6000;
+        constexpr uint32_t BMI160_TARGET_POLL_INTERVAL_MICROS = 2500;
         uint32_t elapsed = now - lastPollTime;
         if (elapsed >= BMI160_TARGET_POLL_INTERVAL_MICROS) {
             lastPollTime = now - (elapsed - BMI160_TARGET_POLL_INTERVAL_MICROS);
@@ -337,7 +337,7 @@ void BMI160Sensor::motionLoop() {
         }
     }
 
-    {
+    /*{
         uint32_t now = micros();
         constexpr float maxSendRateHz = 2.0f;
         constexpr uint32_t sendInterval = 1.0f/maxSendRateHz * 1e6;
@@ -352,11 +352,11 @@ void BMI160Sensor::motionLoop() {
             #endif
             optimistic_yield(100);
         }
-    }
+    }*/
 
     {
         uint32_t now = micros();
-        constexpr float maxSendRateHz = 120.0f;
+        constexpr float maxSendRateHz = 400.0f;
         constexpr uint32_t sendInterval = 1.0f/maxSendRateHz * 1e6;
         uint32_t elapsed = now - lastRotationPacketSent;
         if (elapsed >= sendInterval) {
