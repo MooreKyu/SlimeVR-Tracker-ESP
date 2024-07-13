@@ -236,6 +236,8 @@ void BMI160Sensor::motionSetup() {
     working = true;
 }
 
+extern unsigned long g_loop_time;
+
 void BMI160Sensor::motionLoop() {
     #if ENABLE_INSPECTION
     {
@@ -337,7 +339,7 @@ void BMI160Sensor::motionLoop() {
         }
     }
 
-    /*{
+    {
         uint32_t now = micros();
         constexpr float maxSendRateHz = 2.0f;
         constexpr uint32_t sendInterval = 1.0f/maxSendRateHz * 1e6;
@@ -348,11 +350,11 @@ void BMI160Sensor::motionLoop() {
                 uint32_t isCalibrating = gyroTempCalibrator->isCalibrating() ? 10000 : 0;
                 networkConnection.sendTemperature(sensorId, isCalibrating + 10000 + (gyroTempCalibrator->config.samplesTotal * 100) + temperature);
             #else
-                networkConnection.sendTemperature(sensorId, temperature);
+                networkConnection.sendTemperature(sensorId, std::exchange(g_loop_time, 0));
             #endif
             optimistic_yield(100);
         }
-    }*/
+    }
 
     {
         uint32_t now = micros();

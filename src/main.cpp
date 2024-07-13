@@ -31,7 +31,6 @@
 #include "batterymonitor.h"
 #include "logging/Logger.h"
 
-Timer<> globalTimer;
 SlimeVR::Logging::Logger logger("SlimeVR");
 SlimeVR::Sensors::SensorManager sensorManager;
 SlimeVR::LEDManager ledManager(LED_PIN);
@@ -51,7 +50,6 @@ BatteryMonitor battery;
 void setup()
 {
     Serial.begin(serialBaudRate);
-    globalTimer = timer_create_default();
 
 #ifdef ESP32C3
     // Wait for the Computer to be able to connect.
@@ -108,8 +106,11 @@ void setup()
     loopTime = micros();
 }
 
+unsigned long g_loop_time = 0;
+
 void loop()
 {
-    networkManager.update();
+    auto now = micros();
     sensorManager.update();
+    g_loop_time = std::max(g_loop_time, micros() - now);
 }

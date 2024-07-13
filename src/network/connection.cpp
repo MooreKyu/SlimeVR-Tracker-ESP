@@ -608,6 +608,9 @@ void Connection::reset() {
 	m_UDP.begin(m_ServerPort);
 
 	statusManager.setStatus(SlimeVR::Status::SERVER_CONNECTING, true);
+
+	while(!m_Connected && !m_ServerFeatures.has(ServerFeatures::PROTOCOL_BUNDLE_SUPPORT))
+		update();	
 }
 
 void Connection::update() {

@@ -27,24 +27,9 @@
 namespace SlimeVR {
 namespace Network {
 
-void Manager::setup() { ::WiFiNetwork::setUp(); }
+void Manager::setup() { ::WiFiNetwork::setUp(); networkConnection.reset(); }
 
 void Manager::update() {
-	WiFiNetwork::upkeep();
-
-	auto wasConnected = m_IsConnected;
-
-	m_IsConnected = ::WiFiNetwork::isConnected();
-
-	if (!m_IsConnected) {
-		return;
-	}
-
-	if (!wasConnected) {
-		// WiFi was reconnected, rediscover the server and reconnect
-		networkConnection.reset();
-	}
-
 	networkConnection.update();
 }
 
