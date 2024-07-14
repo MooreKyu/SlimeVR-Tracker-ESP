@@ -112,5 +112,5 @@ void loop()
 {
     auto now = micros();
     sensorManager.update();
-    g_loop_time = std::max(g_loop_time, micros() - now);
+    g_loop_time += micros() - now;
 }
