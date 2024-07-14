@@ -131,10 +131,8 @@ namespace SlimeVR
         void SensorManager::update()
         {
             // Gather IMU data
-            for (auto &sensor : m_Sensors) {
-                    swapI2C(sensor->sclPin, sensor->sdaPin);
+            for (auto &sensor : m_Sensors)
                     sensor->motionLoop();
-            }
 
             #ifndef PACKET_BUNDLING
                 static_assert(false, "PACKET_BUNDLING not set");
