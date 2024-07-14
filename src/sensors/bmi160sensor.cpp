@@ -239,23 +239,13 @@ void BMI160Sensor::motionSetup() {
 extern unsigned long g_loop_time;
 
 void BMI160Sensor::motionLoop() {
-    #if ENABLE_INSPECTION
-    {
-        int16_t rX, rY, rZ, aX, aY, aZ;
-        getRemappedRotation(&rX, &rY, &rZ);
-        getRemappedAcceleration(&aX, &aY, &aZ);
-
-        networkConnection.sendInspectionRawIMUData(sensorId, rX, rY, rZ, 255, aX, aY, aZ, 255, 0, 0, 0, 255);
-    }
-    #endif
-
     {
         uint32_t now = micros();
-        constexpr uint32_t BMI160_TARGET_SYNC_INTERVAL_MICROS = 25000;
-        uint32_t elapsed = now - lastClockPollTime;
-        if (elapsed >= BMI160_TARGET_SYNC_INTERVAL_MICROS) {
-            lastClockPollTime = now - (elapsed - BMI160_TARGET_SYNC_INTERVAL_MICROS);
-
+        constexpr uint32_t BMI160_TARGET_POLL_INTERVAL_MICROS = std::min(BMI160_ODR_GYR_MICROS, BMI160_ODR_ACC_MICROS);
+        uint32_t elapsed = now - lastPollTime;
+        if (elapsed >= BMI160_TARGET_POLL_INTERVAL_MICROS) {
+            lastPollTime = now - (elapsed - BMI160_TARGET_POLL_INTERVAL_MICROS);
+            
             const uint32_t nextLocalTime1 = micros();
             uint32_t rawSensorTime;
             if (imu.getSensorTime(&rawSensorTime)) {
@@ -282,7 +272,7 @@ void BMI160Sensor::motionLoop() {
                         }
 
                         constexpr double EMA_APPROX_SECONDS = 1.0;
-                        constexpr uint32_t EMA_SAMPLES = (EMA_APPROX_SECONDS / 3 * 1e6) / BMI160_TARGET_SYNC_INTERVAL_MICROS;
+                        constexpr uint32_t EMA_SAMPLES = (EMA_APPROX_SECONDS / 3 * 1e6) / BMI160_TARGET_POLL_INTERVAL_MICROS;
                         sensorTimeRatioEma -= sensorTimeRatioEma / EMA_SAMPLES;
                         sensorTimeRatioEma += sensorTimeRatio / EMA_SAMPLES;
 
@@ -292,50 +282,14 @@ void BMI160Sensor::motionLoop() {
                 }
             }
 
-            getTemperature(&temperature);
-            optimistic_yield(100);
-        }
-    }
 
-    {
-        uint32_t now = micros();
-        constexpr uint32_t BMI160_TARGET_POLL_INTERVAL_MICROS = 2500;
-        uint32_t elapsed = now - lastPollTime;
-        if (elapsed >= BMI160_TARGET_POLL_INTERVAL_MICROS) {
-            lastPollTime = now - (elapsed - BMI160_TARGET_POLL_INTERVAL_MICROS);
-
-            #if BMI160_DEBUG
-                uint32_t start = micros();
-                readFIFO();
-                uint32_t end = micros();
-                cpuUsageMicros += end - start;
-                if (!lastCpuUsagePrinted) lastCpuUsagePrinted = end;
-                if (end - lastCpuUsagePrinted > 1e6) {
-                    bool restDetected = sfusion.getRestDetected();
-
-                    m_Logger.debug("readFIFO took %0.4f ms, read gyr %i acc %i mag %i rest %i resets %i readerrs %i type " SENSOR_FUSION_TYPE_STRING,
-                        ((float)cpuUsageMicros / 1e3f),
-                        gyrReads,
-                        accReads,
-                        magReads,
-                        restDetected,
-                        numFIFODropped,
-                        numFIFOFailedReads
-                    );
-
-                    cpuUsageMicros = 0;
-                    lastCpuUsagePrinted = end;
-                    gyrReads = 0;
-                    accReads = 0;
-                    magReads = 0;
-                }
-            #else
-                readFIFO();
-            #endif
-            optimistic_yield(100);
+            readFIFO();
             if (!sfusion.isUpdated()) return;
             hadData = true;
             sfusion.clearUpdated();
+            setFusedRotation(sfusion.getQuaternionQuat());
+            setAcceleration(sfusion.getLinearAccVec());
+            optimistic_yield(100);
         }
     }
 
@@ -352,21 +306,6 @@ void BMI160Sensor::motionLoop() {
             #else
                 networkConnection.sendTemperature(sensorId, static_cast<float>(std::exchange(g_loop_time, 0)) / 10000);
             #endif
-            optimistic_yield(100);
-        }
-    }
-
-    {
-        uint32_t now = micros();
-        constexpr float maxSendRateHz = 400.0f;
-        constexpr uint32_t sendInterval = 1.0f/maxSendRateHz * 1e6;
-        uint32_t elapsed = now - lastRotationPacketSent;
-        if (elapsed >= sendInterval) {
-            lastRotationPacketSent = now - (elapsed - sendInterval);
-
-            setFusedRotation(sfusion.getQuaternionQuat());
-            setAcceleration(sfusion.getLinearAccVec());
-
             optimistic_yield(100);
         }
     }
