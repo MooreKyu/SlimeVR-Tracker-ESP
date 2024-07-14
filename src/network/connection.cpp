@@ -231,18 +231,16 @@ void Connection::sendHeartbeat() {
 
 // PACKET_ACCEL 4
 void Connection::sendSensorAcceleration(uint8_t sensorId, Vector3 vector) {
-	MUST(m_Connected);
+	beginPacket();
 
-	MUST(beginPacket());
+	sendPacketType(PACKET_ACCEL);
+	sendPacketNumber();
+	sendFloat(vector.x);
+	sendFloat(vector.y);
+	sendFloat(vector.z);
+	sendByte(sensorId);
 
-	MUST(sendPacketType(PACKET_ACCEL));
-	MUST(sendPacketNumber());
-	MUST(sendFloat(vector.x));
-	MUST(sendFloat(vector.y));
-	MUST(sendFloat(vector.z));
-	MUST(sendByte(sensorId));
-
-	MUST(endPacket());
+	endPacket();
 }
 
 // PACKET_BATTERY_LEVEL 12
@@ -309,21 +307,19 @@ void Connection::sendRotationData(
 	uint8_t dataType,
 	uint8_t accuracyInfo
 ) {
-	MUST(m_Connected);
+	beginPacket();
 
-	MUST(beginPacket());
+	sendPacketType(PACKET_ROTATION_DATA);
+	sendPacketNumber();
+	sendByte(sensorId);
+	sendByte(dataType);
+	sendFloat(quaternion->x);
+	sendFloat(quaternion->y);
+	sendFloat(quaternion->z);
+	sendFloat(quaternion->w);
+	sendByte(accuracyInfo);
 
-	MUST(sendPacketType(PACKET_ROTATION_DATA));
-	MUST(sendPacketNumber());
-	MUST(sendByte(sensorId));
-	MUST(sendByte(dataType));
-	MUST(sendFloat(quaternion->x));
-	MUST(sendFloat(quaternion->y));
-	MUST(sendFloat(quaternion->z));
-	MUST(sendFloat(quaternion->w));
-	MUST(sendByte(accuracyInfo));
-
-	MUST(endPacket());
+	endPacket();
 }
 
 // PACKET_MAGNETOMETER_ACCURACY 18

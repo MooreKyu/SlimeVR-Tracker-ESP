@@ -44,7 +44,6 @@ void Sensor::setFusedRotation(Quat r) {
 }
 
 void Sensor::sendData() {
-    if (newFusedRotation) {
         newFusedRotation = false;
         networkConnection.sendRotationData(sensorId, &fusedRotation, DATA_TYPE_NORMAL, calibrationAccuracy);
 
@@ -53,12 +52,9 @@ void Sensor::sendData() {
 #endif
 
 #if SEND_ACCELERATION
-        if (newAcceleration) {
             newAcceleration = false;
             networkConnection.sendSensorAcceleration(sensorId, acceleration);
-        }
 #endif
-    }
 }
 
 void Sensor::printTemperatureCalibrationUnsupported() {
