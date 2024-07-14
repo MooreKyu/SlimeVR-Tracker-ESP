@@ -609,7 +609,7 @@ void Connection::reset() {
 
 	statusManager.setStatus(SlimeVR::Status::SERVER_CONNECTING, true);
 
-	while(!m_Connected && !m_ServerFeatures.has(ServerFeatures::PROTOCOL_BUNDLE_SUPPORT))
+	while(!m_Connected || !m_ServerFeatures.has(ServerFeatures::PROTOCOL_BUNDLE_SUPPORT))
 		update();	
 }
 
