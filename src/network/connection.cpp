@@ -512,12 +512,6 @@ void Connection::returnLastPacket(int len) {
 }
 
 void Connection::updateSensorState(std::vector<std::unique_ptr<Sensor>> & sensors) {
-	if (millis() - m_LastSensorInfoPacketTimestamp <= 1000) {
-		return;
-	}
-
-	m_LastSensorInfoPacketTimestamp = millis();
-
 	for (int i = 0; i < (int)sensors.size(); i++) {
 		if (m_AckedSensorState[i] != sensors[i]->getSensorState()) {
 			sendSensorInfo(*sensors[i]);
@@ -609,7 +603,7 @@ void Connection::reset() {
 
 	statusManager.setStatus(SlimeVR::Status::SERVER_CONNECTING, true);
 
-	while(!m_Connected || !m_ServerFeatures.has(ServerFeatures::PROTOCOL_BUNDLE_SUPPORT))
+	while(!m_ServerFeatures.has(ServerFeatures::PROTOCOL_BUNDLE_SUPPORT))
 		update();	
 }
 
