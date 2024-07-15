@@ -140,7 +140,7 @@ namespace SlimeVR
             #if PACKET_BUNDLING == PACKET_BUNDLING_BUFFERED
                 bool shouldSend = false;
                 for (auto &sensor : m_Sensors)
-                    shouldSend |= sensor->hasNewDataToSend();
+                    shouldSend &= sensor->hasNewDataToSend();
             #endif
             
             if(shouldSend)
