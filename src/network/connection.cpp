@@ -706,5 +706,16 @@ void Connection::update() {
 	}
 }
 
+void Connection::updatePing()
+{
+	int packetSize = m_UDP.parsePacket();
+	if (!packetSize) return;
+
+	int len = m_UDP.read(m_Packet, sizeof(m_Packet));
+
+	if(convert_chars<int>(m_Packet) == PACKET_PING_PONG)
+		returnLastPacket(len);
+}
+
 }  // namespace Network
 }  // namespace SlimeVR

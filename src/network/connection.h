@@ -49,6 +49,7 @@ public:
 
 	void searchForServer();
 	void update();
+	void updatePing();
 	void reset();
 	bool isConnected() const { return m_Connected; }
 

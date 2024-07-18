@@ -112,5 +112,6 @@ void loop()
 {
     auto now = micros();
     sensorManager.update();
+    networkConnection.updatePing();
     g_loop_time += micros() - now;
 }
