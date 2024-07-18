@@ -138,7 +138,7 @@ namespace SlimeVR
                 static_assert(false, "PACKET_BUNDLING not set");
             #endif
             #if PACKET_BUNDLING == PACKET_BUNDLING_BUFFERED
-                bool shouldSend = false;
+                bool shouldSend = true;
                 for (auto &sensor : m_Sensors)
                     shouldSend &= sensor->hasNewDataToSend();
             #endif
