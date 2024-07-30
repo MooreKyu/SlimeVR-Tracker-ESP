@@ -1,3 +1,39 @@
+# Test overclock with esp8266 and bmi160
+
+## CAUTION: this is experimental firmware, use at your own risk
+
+## What is changed
+* esp8266 overclocked cpu, flash, i2c (tested on wemos d1 mini)
+* bmi160 gyro and accel polling rate now 400hz
+* Server tps now equals to polling rate
+* Removed OTA, WIFI and server reconnect, Serial commands, battery and temperature reporting for better performance
+* Disabled WIFI compliance and powersaving, using credentials only from platformio.ini
+* Make tps on server always full
+* Some code optimizations
+
+## Build and upload
+https://docs.slimevr.dev/firmware/setup-and-install.html (clone https://github.com/SanyaNya/SlimeVR-Tracker-ESP in step 6)
+
+https://docs.slimevr.dev/firmware/upload-firmware.html
+
+## You must recalibrate IMU because of polling rate change
+
+## Configuration
+You must set these vars in platformio.ini before build and upload:
+* Wifi credentials
+  * DWIFI_CREDS_SSID
+  * DWIFI_CREDS_PASSWD
+* IMU rotation and count
+  * DMY_IMU_ROTATION
+  * DMY_SECOND_IMU_ROTATION
+  * DMY_IMU_COUNT
+
+## 800hz
+If you don`t use extensions(only one imu per tracker) so you can bump gyro and accel polling rate to 800hz:
+1. Open src/sensors/bmi160sensor.h
+2. Replace BMI160_GYRO_RATE_400HZ with BMI160_GYRO_RATE_800HZ
+3. Replace BMI160_ACCEL_RATE_400HZ with BMI160_ACCEL_RATE_800HZ
+
 # SlimeVR Tracker firmware for ESP
 
 Firmware for ESP8266 / ESP32 microcontrollers and different IMU sensors to use them as a vive-like trackers in VR.
