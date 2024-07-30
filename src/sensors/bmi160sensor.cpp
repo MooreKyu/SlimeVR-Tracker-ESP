@@ -284,7 +284,6 @@ void BMI160Sensor::motionLoop() {
 
 
             readFIFO();
-            if (!sfusion.isUpdated()) return;
             hadData = true;
             sfusion.clearUpdated();
             setFusedRotation(sfusion.getQuaternionQuat());
@@ -293,7 +292,7 @@ void BMI160Sensor::motionLoop() {
         }
     }
 
-    {
+    /*{
         uint32_t now = micros();
         constexpr float maxSendRateHz = 1.0f;
         constexpr uint32_t sendInterval = 1.0f/maxSendRateHz * 1e6;
@@ -308,7 +307,7 @@ void BMI160Sensor::motionLoop() {
             #endif
             optimistic_yield(100);
         }
-    }
+    }*/
 }
 
 void BMI160Sensor::readFIFO() {

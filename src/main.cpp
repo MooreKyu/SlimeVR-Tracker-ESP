@@ -110,8 +110,8 @@ unsigned long g_loop_time = 0;
 
 void loop()
 {
-    auto now = micros();
+    //auto now = micros();
     sensorManager.update();
     networkConnection.updatePing();
-    g_loop_time += micros() - now;
+    //g_loop_time += micros() - now;
 }
