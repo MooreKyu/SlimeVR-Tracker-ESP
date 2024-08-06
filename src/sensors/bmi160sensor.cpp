@@ -240,12 +240,7 @@ extern unsigned long g_loop_time;
 
 void BMI160Sensor::motionLoop() {
     {
-        uint32_t now = micros();
-        constexpr uint32_t BMI160_TARGET_POLL_INTERVAL_MICROS = std::min(BMI160_ODR_GYR_MICROS, BMI160_ODR_ACC_MICROS);
-        uint32_t elapsed = now - lastPollTime;
-        if (elapsed >= BMI160_TARGET_POLL_INTERVAL_MICROS) {
-            lastPollTime = now - (elapsed - BMI160_TARGET_POLL_INTERVAL_MICROS);
-            
+            constexpr uint32_t BMI160_TARGET_POLL_INTERVAL_MICROS = std::min(BMI160_ODR_GYR_MICROS, BMI160_ODR_ACC_MICROS);
             const uint32_t nextLocalTime1 = micros();
             uint32_t rawSensorTime;
             if (imu.getSensorTime(&rawSensorTime)) {
@@ -289,10 +284,9 @@ void BMI160Sensor::motionLoop() {
             setFusedRotation(sfusion.getQuaternionQuat());
             setAcceleration(sfusion.getLinearAccVec());
             optimistic_yield(100);
-        }
     }
 
-    /*{
+    {
         uint32_t now = micros();
         constexpr float maxSendRateHz = 1.0f;
         constexpr uint32_t sendInterval = 1.0f/maxSendRateHz * 1e6;
@@ -307,7 +301,7 @@ void BMI160Sensor::motionLoop() {
             #endif
             optimistic_yield(100);
         }
-    }*/
+    }
 }
 
 void BMI160Sensor::readFIFO() {

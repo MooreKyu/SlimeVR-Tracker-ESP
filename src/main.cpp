@@ -108,10 +108,16 @@ void setup()
 
 unsigned long g_loop_time = 0;
 
+#include "sensors/bmi160sensor.h"
+
 void loop()
 {
-    //auto now = micros();
-    sensorManager.update();
+    constexpr uint32_t BMI160_TARGET_POLL_INTERVAL_MICROS = std::min(BMI160_ODR_GYR_MICROS, BMI160_ODR_ACC_MICROS);
+    if(auto now = micros(); now - loopTime >= BMI160_TARGET_POLL_INTERVAL_MICROS)
+    {
+        loopTime = now;
+        sensorManager.update();
+        g_loop_time += micros() - now;
+    }
     networkConnection.updatePing();
-    //g_loop_time += micros() - now;
 }
