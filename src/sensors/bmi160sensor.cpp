@@ -236,8 +236,6 @@ void BMI160Sensor::motionSetup() {
     working = true;
 }
 
-extern unsigned long g_loop_time;
-
 void BMI160Sensor::motionLoop() {
     {
             constexpr uint32_t BMI160_TARGET_POLL_INTERVAL_MICROS = std::min(BMI160_ODR_GYR_MICROS, BMI160_ODR_ACC_MICROS);
@@ -279,28 +277,12 @@ void BMI160Sensor::motionLoop() {
 
 
             readFIFO();
+            if (!sfusion.isUpdated()) return;
             hadData = true;
             sfusion.clearUpdated();
             setFusedRotation(sfusion.getQuaternionQuat());
             setAcceleration(sfusion.getLinearAccVec());
             optimistic_yield(100);
-    }
-
-    {
-        uint32_t now = micros();
-        constexpr float maxSendRateHz = 1.0f;
-        constexpr uint32_t sendInterval = 1.0f/maxSendRateHz * 1e6;
-        uint32_t elapsed = now - lastTemperaturePacketSent;
-        if (elapsed >= sendInterval) {
-            lastTemperaturePacketSent = now - (elapsed - sendInterval);
-            #if BMI160_TEMPCAL_DEBUG
-                uint32_t isCalibrating = gyroTempCalibrator->isCalibrating() ? 10000 : 0;
-                networkConnection.sendTemperature(sensorId, isCalibrating + 10000 + (gyroTempCalibrator->config.samplesTotal * 100) + temperature);
-            #else
-                networkConnection.sendTemperature(sensorId, static_cast<float>(std::exchange(g_loop_time, 0)) / 10000);
-            #endif
-            optimistic_yield(100);
-        }
     }
 }
 

@@ -45,6 +45,8 @@
     #include "driver/i2c.h"
 #endif
 
+extern unsigned long g_loop_time;
+
 namespace SlimeVR
 {
     namespace Sensors
@@ -155,6 +157,8 @@ namespace SlimeVR
             #if PACKET_BUNDLING != PACKET_BUNDLING_DISABLED
                 networkConnection.endBundle();
             #endif
+
+                networkConnection.sendTemperature(0, micros() - g_loop_time);
             }
         }
 
