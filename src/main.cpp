@@ -106,10 +106,7 @@ void setup()
     loopTime = micros();
 }
 
-unsigned long g_loop_time = 0;
-
 void loop()
 {
-    g_loop_time = micros();
     sensorManager.update();
 }

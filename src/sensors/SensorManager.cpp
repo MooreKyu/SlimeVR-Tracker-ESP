@@ -45,8 +45,6 @@
     #include "driver/i2c.h"
 #endif
 
-extern unsigned long g_loop_time;
-
 namespace SlimeVR
 {
     namespace Sensors
@@ -132,6 +130,9 @@ namespace SlimeVR
 
         void SensorManager::update()
         {
+            static unsigned long loop_time = 0;
+            static unsigned long loop_time_count = 0;
+            auto now = micros();
             // Gather IMU data
             for (auto &sensor : m_Sensors)
                     sensor->motionLoop();
@@ -158,7 +159,9 @@ namespace SlimeVR
                 networkConnection.endBundle();
             #endif
 
-                networkConnection.sendTemperature(0, micros() - g_loop_time);
+                loop_time += micros() - now;
+                ++loop_time_count;
+                networkConnection.sendTemperature(0, loop_time / loop_time_count);
             }
         }
 
