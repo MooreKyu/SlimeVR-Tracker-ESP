@@ -88,7 +88,7 @@ public:
         return fusedRotation;
     };
     bool hasNewDataToSend() {
-        return newFusedRotation || newAcceleration;
+        return newFusedRotation;
     };
 
 protected:

@@ -33,7 +33,7 @@
 #define SAVE_BIAS true // Periodically saves bias calibration data to NVS
 #define BIAS_DEBUG false // Printing BIAS Variables to serial (ICM20948 only)
 #define ENABLE_TAP false // monitor accel for (triple) tap events and send them. Uses more cpu, disable if problems. Server does nothing with value so disabled atm
-#define SEND_ACCELERATION true // send linear acceleration to the server
+#define SEND_ACCELERATION false // send linear acceleration to the server
 
 //Debug information
 

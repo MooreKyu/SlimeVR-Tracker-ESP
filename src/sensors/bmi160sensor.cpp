@@ -281,7 +281,9 @@ void BMI160Sensor::motionLoop() {
             hadData = true;
             sfusion.clearUpdated();
             setFusedRotation(sfusion.getQuaternionQuat());
+            #if SEND_ACCELERATION
             setAcceleration(sfusion.getLinearAccVec());
+            #endif
             //optimistic_yield(100);
     }
 }
