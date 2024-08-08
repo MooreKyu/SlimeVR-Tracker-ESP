@@ -238,7 +238,7 @@ void BMI160Sensor::motionSetup() {
 
 void BMI160Sensor::motionLoop() {
     {
-            constexpr uint32_t BMI160_TARGET_POLL_INTERVAL_MICROS = std::min(BMI160_ODR_GYR_MICROS, BMI160_ODR_ACC_MICROS);
+            /*constexpr uint32_t BMI160_TARGET_POLL_INTERVAL_MICROS = std::min(BMI160_ODR_GYR_MICROS, BMI160_ODR_ACC_MICROS);
             const uint32_t nextLocalTime1 = micros();
             uint32_t rawSensorTime;
             if (imu.getSensorTime(&rawSensorTime)) {
@@ -273,7 +273,7 @@ void BMI160Sensor::motionLoop() {
                         samplesSinceClockSync = 0;
                     }
                 }
-            }
+            }*/
 
 
             readFIFO();
