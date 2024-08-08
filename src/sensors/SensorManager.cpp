@@ -130,9 +130,14 @@ namespace SlimeVR
 
         void SensorManager::update()
         {
+            #if SEND_AVG_TIME_TO_SEND
             static unsigned long loop_time = 0;
             static unsigned long loop_time_count = 0;
-            auto now = micros();
+            static unsigned long last_send_time = 0;
+
+            auto start_time = micros();
+            #endif
+
             // Gather IMU data
             for (auto &sensor : m_Sensors)
                     sensor->motionLoop();
@@ -159,9 +164,18 @@ namespace SlimeVR
                 networkConnection.endBundle();
             #endif
 
-                loop_time += micros() - now;
+                #if SEND_AVG_TIME_TO_SEND
+                auto end_time = micros();
+                loop_time += end_time - start_time;
                 ++loop_time_count;
-                networkConnection.sendTemperature(0, loop_time / loop_time_count);
+                if(end_time - last_send_time >= 1000000)
+                {
+                    last_send_time = end_time;
+                    networkConnection.sendTemperature(0, loop_time / loop_time_count);
+                    loop_time = 0;
+                    loop_time_count = 0;
+                }
+                #endif
             }
         }
 
