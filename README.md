@@ -9,6 +9,7 @@
 * Removed OTA, WIFI and server reconnect, Serial commands, battery and temperature reporting for better performance
 * Disabled WIFI compliance and powersaving, using credentials only from platformio.ini
 * Make tps on server always full
+* Don`t send acceleration
 * Some code optimizations
 
 ## Build and upload
