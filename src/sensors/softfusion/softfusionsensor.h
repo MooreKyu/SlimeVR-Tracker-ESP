@@ -182,7 +182,6 @@ public:
                 [&](const int16_t xyz[3], const sensor_real_t timeDelta) { processAccelSample(xyz, timeDelta); },
                 [&](const int16_t xyz[3], const sensor_real_t timeDelta) { processGyroSample(xyz, timeDelta); }
             );
-            optimistic_yield(100);
             if (!m_fusion.isUpdated()) return;
             hadData = true;
             m_fusion.clearUpdated();
@@ -199,7 +198,6 @@ public:
 
             setFusedRotation(m_fusion.getQuaternionQuat());
             setAcceleration(m_fusion.getLinearAccVec());
-            optimistic_yield(100);
         }
     }
 

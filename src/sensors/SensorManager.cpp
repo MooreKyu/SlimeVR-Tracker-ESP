@@ -176,6 +176,7 @@ namespace SlimeVR
                     loop_time_count = 0;
                 }
                 #endif
+                yield();
             }
         }
 

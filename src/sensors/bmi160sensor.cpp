@@ -245,7 +245,6 @@ void BMI160Sensor::motionLoop() {
     #if SEND_ACCELERATION
     setAcceleration(sfusion.getLinearAccVec());
     #endif
-    //optimistic_yield(100);
 }
 
 void BMI160Sensor::readFIFO() {
@@ -271,8 +270,6 @@ void BMI160Sensor::readFIFO() {
         #endif
         return;
     }
-
-    //optimistic_yield(100);
 
     int16_t gx, gy, gz;
     int16_t ax, ay, az;
@@ -386,8 +383,6 @@ void BMI160Sensor::onGyroRawSample(uint32_t dtMicros, int16_t x, int16_t y, int1
     remapGyroAccel(&Gxyz[0], &Gxyz[1], &Gxyz[2]);
 
 	sfusion.updateGyro(Gxyz, (sensor_real_t)dtMicros * 1.0e-6);
-
-	//optimistic_yield(100);
 }
 void BMI160Sensor::onAccelRawSample(uint32_t dtMicros, int16_t x, int16_t y, int16_t z) {
     #if BMI160_DEBUG
@@ -404,8 +399,6 @@ void BMI160Sensor::onAccelRawSample(uint32_t dtMicros, int16_t x, int16_t y, int
     lastAxyz[2] = Axyz[2];
 
 	sfusion.updateAcc(Axyz, (sensor_real_t)dtMicros * 1.0e-6);
-
-	//optimistic_yield(100);
 }
 void BMI160Sensor::onMagRawSample(uint32_t dtMicros, int16_t x, int16_t y, int16_t z) {
     #if BMI160_DEBUG
