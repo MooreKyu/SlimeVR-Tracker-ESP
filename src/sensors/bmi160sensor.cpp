@@ -237,55 +237,15 @@ void BMI160Sensor::motionSetup() {
 }
 
 void BMI160Sensor::motionLoop() {
-    {
-            /*constexpr uint32_t BMI160_TARGET_POLL_INTERVAL_MICROS = std::min(BMI160_ODR_GYR_MICROS, BMI160_ODR_ACC_MICROS);
-            const uint32_t nextLocalTime1 = micros();
-            uint32_t rawSensorTime;
-            if (imu.getSensorTime(&rawSensorTime)) {
-                localTime0 = localTime1;
-                localTime1 = nextLocalTime1;
-                syncLatencyMicros = (micros() - localTime1) * 0.3;
-                sensorTime0 = sensorTime1;
-                sensorTime1 = rawSensorTime;
-                if ((sensorTime0 > 0 || localTime0 > 0) && (sensorTime1 > 0 || sensorTime1 > 0)) {
-                    // handle 24 bit overflow
-                    double remoteDt =
-                        sensorTime1 >= sensorTime0 ?
-                        sensorTime1 - sensorTime0 :
-                        (sensorTime1 + 0xFFFFFF) - sensorTime0;
-                    double localDt = localTime1 - localTime0;
-                    const double nextSensorTimeRatio = localDt / (remoteDt * BMI160_TIMESTAMP_RESOLUTION_MICROS);
-
-                    // handle sdk lags and time travel
-                    if (round(nextSensorTimeRatio) == 1.0) {
-                        sensorTimeRatio = nextSensorTimeRatio;
-
-                        if (round(sensorTimeRatioEma) != 1.0) {
-                            sensorTimeRatioEma = sensorTimeRatio;
-                        }
-
-                        constexpr double EMA_APPROX_SECONDS = 1.0;
-                        constexpr uint32_t EMA_SAMPLES = (EMA_APPROX_SECONDS / 3 * 1e6) / BMI160_TARGET_POLL_INTERVAL_MICROS;
-                        sensorTimeRatioEma -= sensorTimeRatioEma / EMA_SAMPLES;
-                        sensorTimeRatioEma += sensorTimeRatio / EMA_SAMPLES;
-
-                        sampleDtMicros = BMI160_ODR_GYR_MICROS * sensorTimeRatioEma;
-                        samplesSinceClockSync = 0;
-                    }
-                }
-            }*/
-
-
-            readFIFO();
-            if (!sfusion.isUpdated()) return;
-            hadData = true;
-            sfusion.clearUpdated();
-            setFusedRotation(sfusion.getQuaternionQuat());
-            #if SEND_ACCELERATION
-            setAcceleration(sfusion.getLinearAccVec());
-            #endif
-            //optimistic_yield(100);
-    }
+    readFIFO();
+    if (!sfusion.isUpdated()) return;
+    hadData = true;
+    sfusion.clearUpdated();
+    setFusedRotation(sfusion.getQuaternionQuat());
+    #if SEND_ACCELERATION
+    setAcceleration(sfusion.getLinearAccVec());
+    #endif
+    //optimistic_yield(100);
 }
 
 void BMI160Sensor::readFIFO() {
@@ -387,26 +347,7 @@ void BMI160Sensor::readFIFO() {
                 if (mnew) onMagRawSample(BMI160_ODR_MAG_MICROS, mx, my, mz);
             #endif
             if (anew) onAccelRawSample(BMI160_ODR_ACC_MICROS, ax, ay, az);
-            if (gnew) {
-                constexpr uint32_t alignmentBitmask = ~(0xFFFFFFFF << (16 - BMI160_GYRO_RATE));
-                uint32_t alignmentOffset =
-                    (sensorTime1 & alignmentBitmask) * BMI160_TIMESTAMP_RESOLUTION_MICROS * sensorTimeRatioEma;
-
-                timestamp0 = timestamp1;
-                timestamp1 = (localTime1 - alignmentOffset - syncLatencyMicros) +
-                    (++samplesSinceClockSync) * sampleDtMicros;
-                int32_t dtMicros = timestamp1 - timestamp0;
-
-                constexpr float invPeriod = 1.0f / BMI160_ODR_GYR_MICROS;
-                int32_t sampleOffset = round((float)dtMicros * invPeriod) - 1;
-                if (abs(sampleOffset) > 3) {
-                    dtMicros = sampleDtMicros;
-                } else if (sampleOffset != 0) {
-                    dtMicros -= sampleOffset * sampleDtMicros;
-                }
-
-                onGyroRawSample(dtMicros, gx, gy, gz);
-            }
+            if (gnew) onGyroRawSample(BMI160_ODR_GYR_MICROS, gx, gy, gz);
         } else {
             break;
         }
