@@ -220,9 +220,6 @@ int8_t I2Cdev::readBytes(uint8_t devAddr, uint8_t regAddr, uint8_t length, uint8
     int8_t count = 0;
 
     #if (I2CDEV_IMPLEMENTATION == I2CDEV_ARDUINO_WIRE || I2CDEV_IMPLEMENTATION == I2CDEV_BUILTIN_SBWIRE || I2CDEV_IMPLEMENTATION == I2CDEV_TEENSY_3X_WIRE)
-        TwoWire *useWire = &Wire;
-        if (wireObj) useWire = (TwoWire *)wireObj;
-
         #if (ARDUINO < 100)
             // Arduino v00xx (before v1.0), Wire library
 
@@ -273,18 +270,13 @@ int8_t I2Cdev::readBytes(uint8_t devAddr, uint8_t regAddr, uint8_t length, uint8
             // I2C/TWI subsystem uses internal buffer that breaks with large data requests
             // so if user requests more than I2CDEVLIB_WIRE_BUFFER_LENGTH bytes, we have to do it in
             // smaller chunks instead of all at once
-                useWire->beginTransmission(devAddr);
-                useWire->write(regAddr);
-                useWire->endTransmission(false);
-                useWire->requestFrom((uint8_t)devAddr, (uint8_t)length);
+                Wire.beginTransmission(devAddr);
+                Wire.write(regAddr);
+                Wire.endTransmission(false);
+                Wire.requestFrom((uint8_t)devAddr, (uint8_t)length);
         
-                for (; useWire->available(); count++) {
-                    data[count] = useWire->read();
-                    #ifdef I2CDEV_SERIAL_DEBUG
-                        Serial.print(data[count], HEX);
-                        if (count + 1 < length) Serial.print(" ");
-                    #endif
-                }
+                for (; Wire.available(); count++)
+                    data[count] = Wire.read();
         #endif
 
     #elif (I2CDEV_IMPLEMENTATION == I2CDEV_BUILTIN_FASTWIRE)
