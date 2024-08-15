@@ -165,7 +165,6 @@ class BMI160Sensor : public Sensor {
         void onGyroRawSample(uint32_t dtMicros, int16_t x, int16_t y, int16_t z);
         void onAccelRawSample(uint32_t dtMicros, int16_t x, int16_t y, int16_t z);
         void onMagRawSample(uint32_t dtMicros, int16_t x, int16_t y, int16_t z);
-        void readFIFO();
 
         void getMagnetometerXYZFromBuffer(uint8_t* data, int16_t* x, int16_t* y, int16_t* z);
 

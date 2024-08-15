@@ -209,146 +209,24 @@ void BMI160Sensor::motionSetup() {
     m_Logger.info("Calibration data for mag: %s", isMagCalibrated ? "found" : "not found");
     #endif
 
-    imu.setFIFOHeaderModeEnabled(true);
-    imu.setGyroFIFOEnabled(true);
-    imu.setAccelFIFOEnabled(true);
-    #if !USE_6_AXIS
-        imu.setMagFIFOEnabled(true);
-    #endif
-    delay(4);
-    imu.resetFIFO();
-    delay(2);
-
-    uint8_t err;
-    if (imu.getErrReg(&err)) {
-        if (err & BMI160_ERR_MASK_CHIP_NOT_OPERABLE) {
-            m_Logger.fatal("Fatal error: chip not operable");
-            return;
-        } else if (err & BMI160_ERR_MASK_ERROR_CODE) {
-            m_Logger.error("Error code 0x%02x", err);
-        } else {
-            m_Logger.info("Initialized");
-        }
-    } else {
-        m_Logger.error("Failed to get error register value");
-    }
+    imu.setFIFOHeaderModeEnabled(false);
+    imu.setGyroFIFOEnabled(false);
+    imu.setAccelFIFOEnabled(false);
+    imu.setMagFIFOEnabled(false);
 
     working = true;
 }
 
 void BMI160Sensor::motionLoop() {
-    readFIFO();
-    if (!sfusion.isUpdated()) return;
-    hadData = true;
-    sfusion.clearUpdated();
+    int16_t gx, gy, gz;
+    int16_t ax, ay, az;
+    if(!imu.getMotion6(&ax, &ay, &az, &gx, &gy, &gz)) return;
+    onAccelRawSample(BMI160_ODR_ACC_MICROS, ax, ay, az);
+    onGyroRawSample(BMI160_ODR_GYR_MICROS, gx, gy, gz);
     setFusedRotation(sfusion.getQuaternionQuat());
     #if SEND_ACCELERATION
     setAcceleration(sfusion.getLinearAccVec());
     #endif
-}
-
-void BMI160Sensor::readFIFO() {
-    if (!imu.getFIFOCount(&fifo.length)) {
-        #if BMI160_DEBUG
-            numFIFOFailedReads++;
-        #endif
-        return;
-    }
-
-    if (fifo.length <= 1) return;
-    if (fifo.length > sizeof(fifo.data)) {
-        #if BMI160_DEBUG
-            numFIFODropped++;
-        #endif
-        imu.resetFIFO();
-        return;
-    }
-    std::fill(fifo.data, fifo.data + fifo.length, 0);
-    if (!imu.getFIFOBytes(fifo.data, fifo.length)) {
-        #if BMI160_DEBUG
-            numFIFOFailedReads++;
-        #endif
-        return;
-    }
-
-    int16_t gx, gy, gz;
-    int16_t ax, ay, az;
-    bool gnew, anew;
-    #if !USE_6_AXIS
-        int16_t mx, my, mz;
-        bool mnew;
-    #endif
-
-    uint8_t header;
-    for (uint32_t i = 0; i < fifo.length;) {
-        #define BMI160_FIFO_FRAME_ENSURE_BYTES_AVAILABLE(len) { if (i + len > fifo.length) break; }
-        BMI160_FIFO_FRAME_ENSURE_BYTES_AVAILABLE(1);
-
-        // ignore interrupt tags in header
-        header = fifo.data[i] & 0b11111100;
-        i++;
-
-        if (header == BMI160_FIFO_HEADER_CTL_SKIP_FRAME) {
-            BMI160_FIFO_FRAME_ENSURE_BYTES_AVAILABLE(BMI160_FIFO_SKIP_FRAME_LEN);
-            break;
-        } else if (header == BMI160_FIFO_HEADER_CTL_SENSOR_TIME) {
-            BMI160_FIFO_FRAME_ENSURE_BYTES_AVAILABLE(BMI160_FIFO_SENSOR_TIME_LEN);
-            i += BMI160_FIFO_SENSOR_TIME_LEN;
-        } else if (header == BMI160_FIFO_HEADER_CTL_INPUT_CONFIG) {
-            BMI160_FIFO_FRAME_ENSURE_BYTES_AVAILABLE(BMI160_FIFO_INPUT_CONFIG_LEN);
-            i += BMI160_FIFO_INPUT_CONFIG_LEN;
-        } else if (header & BMI160_FIFO_HEADER_DATA_FRAME_BASE) {
-            if (!(header & BMI160_FIFO_HEADER_DATA_FRAME_MASK_HAS_DATA)) {
-                break;
-            }
-            gnew = false;
-            anew = false;
-            #if !USE_6_AXIS
-                mnew = false;
-            #endif
-
-            // mag
-            if (header & BMI160_FIFO_HEADER_DATA_FRAME_FLAG_M) {
-                BMI160_FIFO_FRAME_ENSURE_BYTES_AVAILABLE(BMI160_FIFO_M_LEN);
-                #if !USE_6_AXIS
-                    getMagnetometerXYZFromBuffer(&fifo.data[i], &mx, &my, &mz);
-                    mnew = true;
-                #endif
-                i += BMI160_FIFO_M_LEN;
-            }
-
-            // bmi160 -> 0 lsb 1 msb
-            // gyro
-            if (header & BMI160_FIFO_HEADER_DATA_FRAME_FLAG_G) {
-                BMI160_FIFO_FRAME_ENSURE_BYTES_AVAILABLE(BMI160_FIFO_G_LEN);
-                gx = ((int16_t)fifo.data[i + 1] << 8) | fifo.data[i + 0];
-                gy = ((int16_t)fifo.data[i + 3] << 8) | fifo.data[i + 2];
-                gz = ((int16_t)fifo.data[i + 5] << 8) | fifo.data[i + 4];
-                gnew = true;
-                i += BMI160_FIFO_G_LEN;
-            }
-
-            // bmi160 -> 0 lsb 1 msb
-            // accel
-            if (header & BMI160_FIFO_HEADER_DATA_FRAME_FLAG_A) {
-                BMI160_FIFO_FRAME_ENSURE_BYTES_AVAILABLE(BMI160_FIFO_A_LEN);
-                ax = ((int16_t)fifo.data[i + 1] << 8) | fifo.data[i + 0];
-                ay = ((int16_t)fifo.data[i + 3] << 8) | fifo.data[i + 2];
-                az = ((int16_t)fifo.data[i + 5] << 8) | fifo.data[i + 4];
-                anew = true;
-                i += BMI160_FIFO_A_LEN;
-            }
-
-            // gyro callback updates fusion and must be last
-            #if !USE_6_AXIS
-                if (mnew) onMagRawSample(BMI160_ODR_MAG_MICROS, mx, my, mz);
-            #endif
-            if (anew) onAccelRawSample(BMI160_ODR_ACC_MICROS, ax, ay, az);
-            if (gnew) onGyroRawSample(BMI160_ODR_GYR_MICROS, gx, gy, gz);
-        } else {
-            break;
-        }
-    }
 }
 
 void BMI160Sensor::onGyroRawSample(uint32_t dtMicros, int16_t x, int16_t y, int16_t z) {

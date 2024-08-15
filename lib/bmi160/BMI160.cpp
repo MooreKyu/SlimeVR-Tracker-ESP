@@ -2168,14 +2168,21 @@ void BMI160::setIntEnabled(bool enabled) {
  * @see getRotation()
  * @see BMI160_RA_GYRO_X_L
  */
-void BMI160::getMotion6(int16_t* ax, int16_t* ay, int16_t* az, int16_t* gx, int16_t* gy, int16_t* gz) {
+bool BMI160::getMotion6(int16_t* ax, int16_t* ay, int16_t* az, int16_t* gx, int16_t* gy, int16_t* gz) {
+    std::array<uint8_t, 12> pbuffer;
+    std::copy(std::cbegin(buffer), std::cend(buffer), std::begin(pbuffer));
     I2CdevMod::readBytes(devAddr, BMI160_RA_GYRO_X_L, 12, buffer);
+
+    if(std::equal(std::cbegin(buffer), std::cend(buffer), std::cbegin(pbuffer))) return false;
+
     *gx = (((int16_t)buffer[1])  << 8) | buffer[0];
     *gy = (((int16_t)buffer[3])  << 8) | buffer[2];
     *gz = (((int16_t)buffer[5])  << 8) | buffer[4];
     *ax = (((int16_t)buffer[7])  << 8) | buffer[6];
     *ay = (((int16_t)buffer[9])  << 8) | buffer[8];
     *az = (((int16_t)buffer[11]) << 8) | buffer[10];
+
+    return true;
 }
 
 /** Get 3-axis accelerometer readings.
