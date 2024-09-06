@@ -150,7 +150,7 @@ namespace SlimeVR
                 for (auto &sensor : m_Sensors)
                     shouldSend &= sensor->hasNewDataToSend();
             #endif
-            
+
             if(shouldSend)
             {
             #if PACKET_BUNDLING != PACKET_BUNDLING_DISABLED
@@ -171,7 +171,7 @@ namespace SlimeVR
                 if(end_time - last_send_time >= 1000000)
                 {
                     last_send_time = end_time;
-                    networkConnection.sendTemperature(0, loop_time / loop_time_count);
+                    m_Logger.info("%f", static_cast<float>(loop_time) / loop_time_count);
                     loop_time = 0;
                     loop_time_count = 0;
                 }
