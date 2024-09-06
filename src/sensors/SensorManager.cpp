@@ -140,29 +140,24 @@ namespace SlimeVR
 
             // Gather IMU data
             for (auto &sensor : m_Sensors)
-                    sensor->motionLoop();
+                sensor->motionLoop();
 
-            #ifndef PACKET_BUNDLING
-                static_assert(false, "PACKET_BUNDLING not set");
-            #endif
-            #if PACKET_BUNDLING == PACKET_BUNDLING_BUFFERED
-                bool shouldSend = true;
-                for (auto &sensor : m_Sensors)
-                    shouldSend &= sensor->hasNewDataToSend();
-            #endif
+            bool shouldSend = true;
+            for (auto &sensor : m_Sensors)
+                shouldSend &= sensor->hasNewDataToSend();
 
             if(shouldSend)
             {
-            #if PACKET_BUNDLING != PACKET_BUNDLING_DISABLED
+				#if MY_IMU_COUNT > 1
                 networkConnection.beginBundle();
-            #endif
+				#endif
 
-            for (auto &sensor : m_Sensors)
-                    sensor->sendData();
+				for (auto &sensor : m_Sensors)
+					sensor->sendData();
 
-            #if PACKET_BUNDLING != PACKET_BUNDLING_DISABLED
+				#if MY_IMU_COUNT > 1
                 networkConnection.endBundle();
-            #endif
+				#endif
 
                 #if SEND_AVG_TIME_TO_SEND
                 auto end_time = micros();
