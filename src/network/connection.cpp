@@ -25,7 +25,6 @@
 
 #include "GlobalVars.h"
 #include "logging/Logger.h"
-#include "packets.h"
 
 #define TIMEOUT 3000UL
 
@@ -66,83 +65,34 @@ namespace Network {
 		return;
 
 bool Connection::beginPacket() {
-	if (m_IsBundle) {
-		m_BundlePacketPosition = 0;
-		return true;
-	}
-
 	int r = m_UDP.beginPacket(m_ServerHost, m_ServerPort);
-	if (r == 0) {
-		// This *technically* should *never* fail, since the underlying UDP
-		// library just returns 1.
-
-		m_Logger.warn("UDP beginPacket() failed");
-	}
 
 	return r > 0;
 }
 
 bool Connection::endPacket() {
-	if (m_IsBundle) {
-		uint32_t innerPacketSize = m_BundlePacketPosition;
-
-		MUST_TRANSFER_BOOL((innerPacketSize > 0));
-
-		m_IsBundle = false;
-		
-		if (m_BundlePacketInnerCount == 0) {
-			sendPacketType(PACKET_BUNDLE);
-			sendPacketNumber();
-		}
-		sendShort(innerPacketSize);
-		sendBytes(m_Packet, innerPacketSize);
-
-		m_BundlePacketInnerCount++;
-		m_IsBundle = true;
-		return true;
-	}
-
 	int r = m_UDP.endPacket();
-	if (r == 0) {
-		// This is usually just `ERR_ABRT` but the UDP client doesn't expose
-		// the full error code to us, so we just have to live with it.
-
-		// m_Logger.warn("UDP endPacket() failed");
-	}
 
 	return r > 0;
 }
 
-bool Connection::beginBundle() {
-	MUST_TRANSFER_BOOL(m_ServerFeatures.has(ServerFeatures::PROTOCOL_BUNDLE_SUPPORT));
-	MUST_TRANSFER_BOOL(m_Connected);
-	MUST_TRANSFER_BOOL(!m_IsBundle);
-	MUST_TRANSFER_BOOL(beginPacket());
-
-	m_IsBundle = true;
-	m_BundlePacketInnerCount = 0;
-	return true;
+void Connection::beginBundle()
+{
+#if MY_IMU_COUNT > 1
+	m_raw_udp.write(std::uint8_t(0));
+	m_raw_udp.write(std::uint8_t(0));
+	m_raw_udp.write(std::uint8_t(0));
+	m_raw_udp.write(PACKET_BUNDLE);
+	m_raw_udp.write(m_PacketNumber++);
+#endif
 }
 
-bool Connection::endBundle() {
-	MUST_TRANSFER_BOOL(m_IsBundle);
-
-	m_IsBundle = false;
-	
-	MUST_TRANSFER_BOOL((m_BundlePacketInnerCount > 0));
-
-	return endPacket();
+void Connection::endBundle()
+{
+	m_raw_udp.send();
 }
 
 size_t Connection::write(const uint8_t *buffer, size_t size) {
-	if (m_IsBundle) {
-		if (m_BundlePacketPosition + size > sizeof(m_Packet)) {
-			return 0;
-		}
-		memcpy(m_Packet + m_BundlePacketPosition, buffer, size);
-		m_BundlePacketPosition += size;
-		return size;
-	}
 	return m_UDP.write(buffer, size);
 }
 
@@ -181,10 +131,6 @@ bool Connection::sendBytes(const uint8_t* c, size_t length) {
 }
 
 bool Connection::sendPacketNumber() {
-	if (m_IsBundle) {
-		return true;
-	}
-
 	uint64_t pn = m_PacketNumber++;
 
 	return sendLong(pn);
@@ -303,23 +249,27 @@ void Connection::sendSensorInfo(Sensor& sensor) {
 // PACKET_ROTATION_DATA 17
 void Connection::sendRotationData(
 	uint8_t sensorId,
-	Quat* const quaternion,
+	const Quat& quaternion,
 	uint8_t dataType,
-	uint8_t accuracyInfo
-) {
-	beginPacket();
-
-	sendPacketType(PACKET_ROTATION_DATA);
-	sendPacketNumber();
-	sendByte(sensorId);
-	sendByte(dataType);
-	sendFloat(quaternion->x);
-	sendFloat(quaternion->y);
-	sendFloat(quaternion->z);
-	sendFloat(quaternion->w);
-	sendByte(accuracyInfo);
-
-	endPacket();
+	uint8_t accuracyInfo)
+{
+#if MY_IMU_COUNT > 1
+	m_raw_udp.write(PACKET_ROTATION_DATA_SIZE);
+#endif
+	m_raw_udp.write(std::uint8_t(0));
+	m_raw_udp.write(std::uint8_t(0));
+	m_raw_udp.write(std::uint8_t(0));
+	m_raw_udp.write(PACKET_ROTATION_DATA);
+#if MY_IMU_COUNT == 1
+	m_raw_udp.write(m_PacketNumber++);
+#endif
+	m_raw_udp.write(sensorId);
+	m_raw_udp.write(dataType);
+	m_raw_udp.write(quaternion.x);
+	m_raw_udp.write(quaternion.y);
+	m_raw_udp.write(quaternion.z);
+	m_raw_udp.write(quaternion.w);
+	m_raw_udp.write(accuracyInfo);
 }
 
 // PACKET_MAGNETOMETER_ACCURACY 18
@@ -515,7 +465,7 @@ void Connection::updateSensorState(std::vector<std::unique_ptr<Sensor>> & sensor
 	}
 }
 
-void Connection::maybeRequestFeatureFlags() {	
+void Connection::maybeRequestFeatureFlags() {
 	if (m_ServerFeatures.isAvailable() || m_FeatureFlagsRequestAttempts >= 15) {
 		return;
 	}
@@ -561,7 +511,7 @@ void Connection::searchForServer() {
 			m_ServerPort = m_UDP.remotePort();
 			m_LastPacketTimestamp = millis();
 			m_Connected = true;
-			
+
 			m_FeatureFlagsRequestAttempts = 0;
 			m_ServerFeatures = ServerFeatures { };
 
@@ -600,7 +550,11 @@ void Connection::reset() {
 	statusManager.setStatus(SlimeVR::Status::SERVER_CONNECTING, true);
 
 	while(!m_ServerFeatures.has(ServerFeatures::PROTOCOL_BUNDLE_SUPPORT))
-		update();	
+		update();
+
+	m_UDP.stop();
+
+	m_raw_udp = decltype(m_raw_udp)(m_ServerHost, m_ServerPort);
 }
 
 void Connection::update() {
@@ -690,7 +644,7 @@ void Connection::update() {
 			}
 
 			bool hadFlags = m_ServerFeatures.isAvailable();
-			
+
 			uint32_t flagsLength = len - 12;
 			m_ServerFeatures = ServerFeatures::from(&m_Packet[12], flagsLength);
 

@@ -45,7 +45,7 @@ void Sensor::setFusedRotation(Quat r) {
 
 void Sensor::sendData() {
         newFusedRotation = false;
-        networkConnection.sendRotationData(sensorId, &fusedRotation, DATA_TYPE_NORMAL, calibrationAccuracy);
+        networkConnection.sendRotationData(sensorId, fusedRotation, DATA_TYPE_NORMAL, calibrationAccuracy);
 
 #ifdef DEBUG_SENSOR
         m_Logger.trace("Quaternion: %f, %f, %f, %f", UNPACK_QUATERNION(fusedRotation));

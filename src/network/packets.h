@@ -24,43 +24,38 @@
 #ifndef SLIMEVR_PACKETS_H_
 #define SLIMEVR_PACKETS_H_
 
-#define PACKET_HEARTBEAT 0
-// #define PACKET_ROTATION 1 // Deprecated
-// #define PACKET_GYRO 2 // Deprecated
-#define PACKET_HANDSHAKE 3
-#define PACKET_ACCEL 4
-// #define PACKET_MAG 5 // Deprecated
-// #define PACKET_RAW_CALIBRATION_DATA 6 // Deprecated
-// #define PACKET_CALIBRATION_FINISHED 7 // Deprecated
-#define PACKET_CONFIG 8
-// #define PACKET_RAW_MAGNETOMETER 9 // Deprecated
-#define PACKET_PING_PONG 10
-#define PACKET_SERIAL 11
-#define PACKET_BATTERY_LEVEL 12
-#define PACKET_TAP 13
-#define PACKET_ERROR 14
-#define PACKET_SENSOR_INFO 15
-// #define PACKET_ROTATION_2 16 // Deprecated
-#define PACKET_ROTATION_DATA 17
-#define PACKET_MAGNETOMETER_ACCURACY 18
-#define PACKET_SIGNAL_STRENGTH 19
-#define PACKET_TEMPERATURE 20
-// #define PACKET_USER_ACTION 21 // Joycon buttons only currently
-#define PACKET_FEATURE_FLAGS 22
+#include <cstdint>
 
-#define PACKET_BUNDLE 100
+constexpr std::uint8_t PACKET_HEARTBEAT             = 0;
+constexpr std::uint8_t PACKET_HANDSHAKE             = 3;
+constexpr std::uint8_t PACKET_ACCEL                 = 4;
+constexpr std::uint8_t PACKET_CONFIG                = 8;
+constexpr std::uint8_t PACKET_PING_PONG             = 10;
+constexpr std::uint8_t PACKET_SERIAL				= 11;
+constexpr std::uint8_t PACKET_BATTERY_LEVEL         = 12;
+constexpr std::uint8_t PACKET_TAP                   = 13;
+constexpr std::uint8_t PACKET_ERROR                 = 14;
+constexpr std::uint8_t PACKET_SENSOR_INFO           = 15;
+constexpr std::uint8_t PACKET_ROTATION_DATA         = 17;
+constexpr std::uint8_t PACKET_MAGNETOMETER_ACCURACY = 18;
+constexpr std::uint8_t PACKET_SIGNAL_STRENGTH       = 19;
+constexpr std::uint8_t PACKET_TEMPERATURE           = 20;
+constexpr std::uint8_t PACKET_FEATURE_FLAGS         = 22;
 
-#define PACKET_INSPECTION 105  // 0x69
+constexpr std::uint8_t PACKET_BUNDLE = 100;
 
-#define PACKET_RECEIVE_HEARTBEAT 1
-#define PACKET_RECEIVE_VIBRATE 2
-#define PACKET_RECEIVE_HANDSHAKE 3
-#define PACKET_RECEIVE_COMMAND 4
+constexpr std::uint8_t PACKET_INSPECTION = 105;  // 0x69
 
-#define PACKET_INSPECTION_PACKETTYPE_RAW_IMU_DATA 1
-#define PACKET_INSPECTION_PACKETTYPE_FUSED_IMU_DATA 2
-#define PACKET_INSPECTION_PACKETTYPE_CORRECTION_DATA 3
-#define PACKET_INSPECTION_DATATYPE_INT 1
-#define PACKET_INSPECTION_DATATYPE_FLOAT 2
+constexpr std::uint8_t PACKET_RECEIVE_HEARTBEAT = 1;
+constexpr std::uint8_t PACKET_RECEIVE_VIBRATE   = 2;
+constexpr std::uint8_t PACKET_RECEIVE_HANDSHAKE = 3;
+constexpr std::uint8_t PACKET_RECEIVE_COMMAND   = 4;
+
+constexpr std::uint8_t PACKET_INSPECTION_PACKETTYPE_RAW_IMU_DATA    = 1;
+constexpr std::uint8_t PACKET_INSPECTION_PACKETTYPE_FUSED_IMU_DATA  = 2;
+constexpr std::uint8_t PACKET_INSPECTION_PACKETTYPE_CORRECTION_DATA = 3;
+
+constexpr std::uint8_t PACKET_INSPECTION_DATATYPE_INT   = 1;
+constexpr std::uint8_t PACKET_INSPECTION_DATATYPE_FLOAT = 2;
 
 #endif  // SLIMEVR_PACKETS_H_

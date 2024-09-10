@@ -48,7 +48,7 @@ namespace SlimeVR
             void postSetup();
 
             void update();
-            
+
             std::vector<std::unique_ptr<Sensor>> & getSensors() { return m_Sensors; };
             ImuID getSensorType(size_t id) {
                 if(id < m_Sensors.size()) {
@@ -98,12 +98,12 @@ namespace SlimeVR
 
                 sensor->motionSetup();
                 return sensor;
-            }            
+            }
             uint8_t activeSCL = 0;
             uint8_t activeSDA = 0;
             bool running = false;
             void swapI2C(uint8_t scl, uint8_t sda);
-            
+
             uint32_t m_LastBundleSentAtMicros = micros();
         };
     }

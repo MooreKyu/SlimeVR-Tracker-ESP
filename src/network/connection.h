@@ -25,12 +25,14 @@
 
 #include <Arduino.h>
 #include <WiFiUdp.h>
+#include "RawUdp.hpp"
 
 #include "globals.h"
 #include "quat.h"
 #include "sensors/sensor.h"
 #include "wifihandler.h"
 #include "featureflags.h"
+#include "packets.h"
 
 namespace SlimeVR {
 namespace Network {
@@ -68,7 +70,7 @@ public:
 	// PACKET_ROTATION_DATA 17
 	void sendRotationData(
 		uint8_t sensorId,
-		Quat* const quaternion,
+		const Quat& quaternion,
 		uint8_t dataType,
 		uint8_t accuracyInfo
 	);
@@ -122,8 +124,8 @@ public:
 		return m_ServerFeatures;
 	}
 
-	bool beginBundle();
-	bool endBundle();
+	void beginBundle();
+	void endBundle();
 
 private:
 	void updateSensorState(std::vector<std::unique_ptr<Sensor>> & sensors);
@@ -166,6 +168,23 @@ private:
 	unsigned char m_Packet[128];  // buffer for incoming packets
 	uint64_t m_PacketNumber = 0;
 
+#if MY_IMU_COUNT > 1
+	static constexpr std::uint16_t PACKET_ROTATION_DATA_SIZE = 23;
+#elif MY_IMU_COUNT == 1
+	static constexpr std::uint16_t PACKET_ROTATION_DATA_SIZE = 31;
+#endif
+
+#if MY_IMU_COUNT > 1
+	static constexpr std::size_t UDP_BUF_SIZE =
+		3 + sizeof(PACKET_BUNDLE) +
+		sizeof(m_PacketNumber) +
+		(sizeof(PACKET_ROTATION_DATA_SIZE) + PACKET_ROTATION_DATA_SIZE) * MY_IMU_COUNT;
+#elif MY_IMU_COUNT == 1
+	static constexpr std::size_t UDP_BUF_SIZE = PACKET_ROTATION_DATA_SIZE;
+#endif
+
+	RawUdp<UDP_BUF_SIZE> m_raw_udp;
+
 	int m_ServerPort = 6969;
 	IPAddress m_ServerHost = IPAddress(255, 255, 255, 255);
 	unsigned long m_LastConnectionAttemptTimestamp;
@@ -177,10 +196,6 @@ private:
 	uint8_t m_FeatureFlagsRequestAttempts = 0;
 	unsigned long m_FeatureFlagsRequestTimestamp = millis();
 	ServerFeatures m_ServerFeatures{};
-
-	bool m_IsBundle = false;
-	uint16_t m_BundlePacketPosition = 0;
-	uint16_t m_BundlePacketInnerCount = 0;
 
 	unsigned char m_Buf[8];
 };

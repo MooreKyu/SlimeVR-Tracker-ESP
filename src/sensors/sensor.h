@@ -108,7 +108,7 @@ protected:
     Vector3 acceleration{};
 
     mutable SlimeVR::Logging::Logger m_Logger;
-    
+
 public:
     uint8_t sclPin = 0;
     uint8_t sdaPin = 0;

@@ -148,16 +148,12 @@ namespace SlimeVR
 
             if(shouldSend)
             {
-				#if MY_IMU_COUNT > 1
                 networkConnection.beginBundle();
-				#endif
 
 				for (auto &sensor : m_Sensors)
 					sensor->sendData();
 
-				#if MY_IMU_COUNT > 1
                 networkConnection.endBundle();
-				#endif
 
                 #if SEND_AVG_TIME_TO_SEND
                 auto end_time = micros();

@@ -58,7 +58,7 @@ void BNO080Sensor::motionSetup()
         imu.enableARVRStabilizedGameRotationVector(10);
     } else {
         imu.enableGameRotationVector(10);
-    }  
+    }
 
     #if BNO_USE_MAGNETOMETER_CORRECTION
     imu.enableRotationVector(1000);
@@ -202,7 +202,7 @@ void BNO080Sensor::sendData()
     if (newFusedRotation)
     {
         newFusedRotation = false;
-        networkConnection.sendRotationData(sensorId, &fusedRotation, DATA_TYPE_NORMAL, calibrationAccuracy);
+        networkConnection.sendRotationData(sensorId, fusedRotation, DATA_TYPE_NORMAL, calibrationAccuracy);
 
 #ifdef DEBUG_SENSOR
         m_Logger.trace("Quaternion: %f, %f, %f, %f", UNPACK_QUATERNION(fusedRotation));
