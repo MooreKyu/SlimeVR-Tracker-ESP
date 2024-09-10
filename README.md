@@ -2,6 +2,8 @@
 
 ## CAUTION: this is experimental firmware, use at your own risk
 
+## Now works only with my fork of SlimeVR-Server: https://github.com/SanyaNya/SlimeVR-Server
+
 ## What is changed
 * esp8266 overclocked cpu, flash, i2c (tested on wemos d1 mini)
 * bmi160 gyro and accel polling rate now 400hz
@@ -11,6 +13,7 @@
 * Make tps on server always full
 * Don`t send acceleration
 * Some code optimizations
+* Reduce packet size
 
 ## Build and upload
 https://docs.slimevr.dev/firmware/setup-and-install.html (clone https://github.com/SanyaNya/SlimeVR-Tracker-ESP in step 6)
