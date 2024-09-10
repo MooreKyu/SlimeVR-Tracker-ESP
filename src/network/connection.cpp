@@ -79,9 +79,6 @@ bool Connection::endPacket() {
 void Connection::beginBundle()
 {
 #if MY_IMU_COUNT > 1
-	m_raw_udp.write(std::uint8_t(0));
-	m_raw_udp.write(std::uint8_t(0));
-	m_raw_udp.write(std::uint8_t(0));
 	m_raw_udp.write(PACKET_BUNDLE);
 	m_raw_udp.write(m_PacketNumber++);
 #endif
@@ -131,9 +128,9 @@ bool Connection::sendBytes(const uint8_t* c, size_t length) {
 }
 
 bool Connection::sendPacketNumber() {
-	uint64_t pn = m_PacketNumber++;
+	uint16_t pn = m_PacketNumber++;
 
-	return sendLong(pn);
+	return sendShort(pn);
 }
 
 bool Connection::sendShortString(const char* str) {
@@ -146,10 +143,6 @@ bool Connection::sendShortString(const char* str) {
 }
 
 bool Connection::sendPacketType(uint8_t type) {
-	MUST_TRANSFER_BOOL(sendByte(0));
-	MUST_TRANSFER_BOOL(sendByte(0));
-	MUST_TRANSFER_BOOL(sendByte(0));
-
 	return sendByte(type);
 }
 

@@ -166,17 +166,17 @@ private:
 
 	WiFiUDP m_UDP;
 	unsigned char m_Packet[128];  // buffer for incoming packets
-	uint64_t m_PacketNumber = 0;
+	uint16_t m_PacketNumber = 0;
 
 #if MY_IMU_COUNT > 1
 	static constexpr std::uint16_t PACKET_ROTATION_DATA_SIZE = 23;
 #elif MY_IMU_COUNT == 1
-	static constexpr std::uint16_t PACKET_ROTATION_DATA_SIZE = 31;
+	static constexpr std::uint16_t PACKET_ROTATION_DATA_SIZE = 22;
 #endif
 
 #if MY_IMU_COUNT > 1
 	static constexpr std::size_t UDP_BUF_SIZE =
-		3 + sizeof(PACKET_BUNDLE) +
+		sizeof(PACKET_BUNDLE) +
 		sizeof(m_PacketNumber) +
 		(sizeof(PACKET_ROTATION_DATA_SIZE) + PACKET_ROTATION_DATA_SIZE) * MY_IMU_COUNT;
 #elif MY_IMU_COUNT == 1
