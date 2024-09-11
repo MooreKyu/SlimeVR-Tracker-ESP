@@ -330,7 +330,7 @@ void Connection::sendTrackerDiscovery() {
 
 	MUST(sendPacketType(PACKET_HANDSHAKE));
 	// Packet number is always 0 for handshake
-	MUST(sendLong(0));
+	MUST(sendShort(0));
 	MUST(sendInt(BOARD));
 	// This is kept for backwards compatibility,
 	// but the latest SlimeVR server will not initialize trackers
