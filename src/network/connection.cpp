@@ -248,10 +248,10 @@ void Connection::sendRotationData(
 {
 #if MY_IMU_COUNT > 1
 	m_raw_udp.write(PACKET_ROTATION_DATA_SIZE);
+	m_raw_udp.write(std::uint8_t(0));
+	m_raw_udp.write(std::uint8_t(0));
+	m_raw_udp.write(std::uint8_t(0));
 #endif
-	m_raw_udp.write(std::uint8_t(0));
-	m_raw_udp.write(std::uint8_t(0));
-	m_raw_udp.write(std::uint8_t(0));
 	m_raw_udp.write(PACKET_ROTATION_DATA);
 #if MY_IMU_COUNT == 1
 	m_raw_udp.write(m_PacketNumber++);
