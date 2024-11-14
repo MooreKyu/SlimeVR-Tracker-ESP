@@ -184,16 +184,16 @@ void Connection::sendSensorAcceleration(uint8_t sensorId, Vector3 vector) {
 
 // PACKET_BATTERY_LEVEL 12
 void Connection::sendBatteryLevel(float batteryVoltage, float batteryPercentage) {
-	MUST(m_Connected);
+	//MUST(sendPacketType(PACKET_BATTERY_LEVEL));
+	//MUST(sendPacketNumber());
+	//MUST(sendFloat(batteryVoltage));
+	//MUST(sendFloat(batteryPercentage));
+	m_raw_udp.write(PACKET_BATTERY_LEVEL);
+	m_raw_udp.write(m_PacketNumber++);
+	m_raw_udp.write(batteryVoltage);
+	m_raw_udp.write(batteryPercentage);
+	m_raw_udp.send();
 
-	MUST(beginPacket());
-
-	MUST(sendPacketType(PACKET_BATTERY_LEVEL));
-	MUST(sendPacketNumber());
-	MUST(sendFloat(batteryVoltage));
-	MUST(sendFloat(batteryPercentage));
-
-	MUST(endPacket());
 }
 
 // PACKET_TAP 13
