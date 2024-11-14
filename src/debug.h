@@ -26,7 +26,7 @@
 #include "logging/Level.h"
 
 #define IMU_MPU6050_RUNTIME_CALIBRATION // Comment to revert to startup/traditional-calibration
-#define BNO_USE_ARVR_STABILIZATION true // Set to false to disable stabilization for BNO085+ IMUs
+#define BNO_USE_ARVR_STABILIZATION false // Set to false to disable stabilization for BNO085+ IMUs
 #define BNO_USE_MAGNETOMETER_CORRECTION false // Set to true to enable magnetometer correction for BNO08x IMUs. Only works with USE_6_AXIS set to true.
 #define USE_6_AXIS true // uses 9 DoF (with mag) if false (only for ICM-20948 and BNO0xx currently)
 #define LOAD_BIAS true // Loads the bias values from NVS on start
@@ -78,7 +78,7 @@
 // Experimental
 #define OPTIMIZE_UPDATES false
 
-#define I2C_SPEED 762500
+#define I2C_SPEED 400000
 
 #define COMPLIANCE_MODE false
 #define USE_ATTENUATION COMPLIANCE_MODE && ESP8266
