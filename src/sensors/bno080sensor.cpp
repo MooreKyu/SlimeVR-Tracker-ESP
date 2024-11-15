@@ -51,13 +51,13 @@ void BNO080Sensor::motionSetup()
                   imu.swVersionPatch
                 );
 
-    this->imu.enableLinearAccelerometer(10);
+    this->imu.enableLinearAccelerometer(5);
 
 #if USE_6_AXIS
     if ((sensorType == ImuID::BNO085 || sensorType == ImuID::BNO086) && BNO_USE_ARVR_STABILIZATION) {
-        imu.enableARVRStabilizedGameRotationVector(10);
+        imu.enableARVRStabilizedGameRotationVector(5);
     } else {
-        imu.enableGameRotationVector(10);
+        imu.enableGameRotationVector(5);
     }
 
     #if BNO_USE_MAGNETOMETER_CORRECTION
