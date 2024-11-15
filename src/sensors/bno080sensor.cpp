@@ -159,11 +159,6 @@ void BNO080Sensor::motionLoop()
             newMagData = true;
         }
 #endif // USE_6_AXIS && BNO_USE_MAGNETOMETER_CORRECTION
-
-        if (imu.getTapDetected())
-        {
-            tap = imu.getTapDetector();
-        }
         if (m_IntPin == 255 || imu.I2CTimedOut())
             break;
     }
@@ -229,12 +224,6 @@ void BNO080Sensor::sendData()
         networkConnection.sendMagnetometerAccuracy(sensorId, magneticAccuracyEstimate);
     }
 #endif
-
-    if (tap != 0)
-    {
-        networkConnection.sendSensorTap(sensorId, tap);
-        tap = 0;
-    }
 }
 
 void BNO080Sensor::startCalibration(int calibrationType)
