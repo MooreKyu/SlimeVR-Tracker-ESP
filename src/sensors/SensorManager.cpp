@@ -167,6 +167,17 @@ namespace SlimeVR
                     loop_time_count = 0;
                 }
                 #endif
+
+				//IMU updated and we have some time to do other stuff
+				battery.Loop();
+
+				if(millis() - last_rssi_sample >= 2000)
+				{
+		            last_rssi_sample = millis();
+		            uint8_t signalStrength = WiFi.RSSI();
+		            networkConnection.sendSignalStrength(signalStrength);
+		        }
+
                 yield();
             }
         }

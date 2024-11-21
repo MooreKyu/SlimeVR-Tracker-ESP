@@ -32,7 +32,6 @@ unsigned long wifiConnectionTimeout = millis();
 bool isWifiConnected = false;
 uint8_t wifiState = SLIME_WIFI_NOT_SETUP;
 bool hadWifi = false;
-unsigned long last_rssi_sample = 0;
 
 // TODO: Cleanup with proper classes
 SlimeVR::Logging::Logger wifiHandlerLogger("WiFiHandler");
