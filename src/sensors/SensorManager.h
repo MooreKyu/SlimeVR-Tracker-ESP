@@ -105,6 +105,7 @@ namespace SlimeVR
             void swapI2C(uint8_t scl, uint8_t sda);
 
             uint32_t m_LastBundleSentAtMicros = micros();
+			unsigned long last_rssi_sample = 0;
         };
     }
 }

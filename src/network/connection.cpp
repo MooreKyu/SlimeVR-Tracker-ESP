@@ -280,17 +280,14 @@ void Connection::sendMagnetometerAccuracy(uint8_t sensorId, float accuracyInfo) 
 }
 
 // PACKET_SIGNAL_STRENGTH 19
-void Connection::sendSignalStrength(uint8_t signalStrength) {
-	MUST(m_Connected);
+void Connection::sendSignalStrength(uint8_t signalStrength)
+{
+	m_raw_udp.write(PACKET_SIGNAL_STRENGTH);
+	m_raw_udp.write(m_PacketNumber++);
+	m_raw_udp.write(std::uint8_t(255));
+	m_raw_udp.write(signalStrength);
 
-	MUST(beginPacket());
-
-	MUST(sendPacketType(PACKET_SIGNAL_STRENGTH));
-	MUST(sendPacketNumber());
-	MUST(sendByte(255));
-	MUST(sendByte(signalStrength));
-
-	MUST(endPacket());
+	m_raw_udp.send();
 }
 
 // PACKET_TEMPERATURE 20
