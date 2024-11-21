@@ -109,5 +109,4 @@ void setup()
 void loop()
 {
     sensorManager.update();
-    battery.Loop();
 }

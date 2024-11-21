@@ -167,6 +167,10 @@ namespace SlimeVR
                     loop_time_count = 0;
                 }
                 #endif
+
+				//IMU updated and we have some time to do other stuff
+				battery.Loop();
+
                 yield();
             }
         }
