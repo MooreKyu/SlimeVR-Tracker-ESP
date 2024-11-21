@@ -25,6 +25,8 @@
 #include "utils.h"
 #include "GlobalVars.h"
 
+constexpr auto BNO080_TIME_INTERVAL = 1000 / BNO080_POLLING_RATE;
+
 void BNO080Sensor::motionSetup()
 {
 #ifdef DEBUG_SENSOR
@@ -51,13 +53,13 @@ void BNO080Sensor::motionSetup()
                   imu.swVersionPatch
                 );
 
-    this->imu.enableLinearAccelerometer(5);
+    this->imu.enableLinearAccelerometer(BNO080_TIME_INTERVAL);
 
 #if USE_6_AXIS
     if ((sensorType == ImuID::BNO085 || sensorType == ImuID::BNO086) && BNO_USE_ARVR_STABILIZATION) {
-        imu.enableARVRStabilizedGameRotationVector(5);
+        imu.enableARVRStabilizedGameRotationVector(BNO080_TIME_INTERVAL);
     } else {
-        imu.enableGameRotationVector(5);
+        imu.enableGameRotationVector(BNO080_TIME_INTERVAL);
     }
 
     #if BNO_USE_MAGNETOMETER_CORRECTION
@@ -65,16 +67,16 @@ void BNO080Sensor::motionSetup()
     #endif
 #else
     if ((sensorType == ImuID::BNO085 || sensorType == ImuID::BNO086) && BNO_USE_ARVR_STABILIZATION) {
-        imu.enableARVRStabilizedRotationVector(10);
+        imu.enableARVRStabilizedRotationVector(BNO080_TIME_INTERVAL);
     } else {
-        imu.enableRotationVector(10);
+        imu.enableRotationVector(BNO080_TIME_INTERVAL);
     }
 #endif
 
 #if ENABLE_INSPECTION
-    imu.enableRawGyro(10);
-    imu.enableRawAccelerometer(10);
-    imu.enableRawMagnetometer(10);
+    imu.enableRawGyro(BNO080_TIME_INTERVAL);
+    imu.enableRawAccelerometer(BNO080_TIME_INTERVAL);
+    imu.enableRawMagnetometer(BNO080_TIME_INTERVAL);
 #endif
 
     lastReset = 0;
