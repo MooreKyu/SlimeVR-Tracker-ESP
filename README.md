@@ -1,42 +1,30 @@
-# Test overclock with esp8266 and bmi160
+# Test overclock with esp8266 and BNO085
 
 ## CAUTION: this is experimental firmware, use at your own risk
 
-## Now works only with my fork of SlimeVR-Server: https://github.com/SanyaNya/SlimeVR-Server
+## Now works only with fork of SlimeVR-Server: https://github.com/SanyaNya/SlimeVR-Server
 
 ## What is changed
-* esp8266 overclocked cpu, flash, i2c (tested on wemos d1 mini)
-* bmi160 gyro and accel polling rate now 400hz
+* esp8266 overclocked cpu, flash(tested on wemos d1 mini)
 * Server tps now equals to polling rate
-* Removed OTA, WIFI and server reconnect, Serial commands, battery and temperature reporting for better performance
+* Removed OTA, WIFI and server reconnect, Serial commands, and temperature reporting for better performance
 * Disabled WIFI compliance and powersaving, using credentials only from platformio.ini
 * Make tps on server always full
 * Don`t send acceleration
 * Some code optimizations
 * Reduce packet size
+* BNO085 polling rate is now 200hz default
 
 ## Build and upload
-https://docs.slimevr.dev/firmware/setup-and-install.html (clone https://github.com/SanyaNya/SlimeVR-Tracker-ESP in step 6)
+https://docs.slimevr.dev/firmware/setup-and-install.html (clone https://github.com/MooreKyu/SlimeVR-Tracker-ESP in step 6)
 
 https://docs.slimevr.dev/firmware/upload-firmware.html
-
-## You must recalibrate IMU because of polling rate change
 
 ## Configuration
 You must set these vars in platformio.ini before build and upload:
 * Wifi credentials
   * DWIFI_CREDS_SSID
   * DWIFI_CREDS_PASSWD
-* IMU rotation and count
-  * DMY_IMU_ROTATION
-  * DMY_SECOND_IMU_ROTATION
-  * DMY_IMU_COUNT
-
-## 800hz
-If you don`t use extensions(only one imu per tracker) so you can bump gyro and accel polling rate to 800hz:
-1. Open src/sensors/bmi160sensor.h
-2. Replace BMI160_GYRO_RATE_400HZ with BMI160_GYRO_RATE_800HZ
-3. Replace BMI160_ACCEL_RATE_400HZ with BMI160_ACCEL_RATE_800HZ
 
 # SlimeVR Tracker firmware for ESP
 
@@ -105,7 +93,7 @@ Firmware can work with both ESP8266 and ESP32. Please edit `defines.h` and set y
     > The LED will be lit continuously. If you have the tracker connected via USB and open the serial console, you will see text prompts in addition to the LEDs. You can only calibrate 1 IMU at a time.
 
     Flip it back up while the LED is still solid. Wait a few seconds, do not touch the device.
-    
+
   - **Step 1: It will flash 3 times when gyroscope calibration begins.**
 
     > If done incorrectly, this step is the most likely source of constant drift.
@@ -120,9 +108,9 @@ Firmware can work with both ESP8266 and ESP32. Please edit `defines.h` and set y
     > If you are unable to keep it on a flat surface without touching, press the device against a wall, it does not have to be absolutely perfect.
 
     **There will be two very short blinks when each position is recorded.**
-    
+
     Rotate the device 90 or 180 degrees in any direction. It should be on a different side each time. Continue to rotate until all 6 sides have been recorded.
-    
+
     The last position has a long flash when recorded, indicating exit from calibration mode.
 
   #### Additional info for BMI160
